@@ -7,7 +7,6 @@ const initialState = {
 };
 
 const rootReducer = (state, action) => {
-  console.log(action.value);
   switch (action.type) {
     case "PUSH_NAV":
       return {
