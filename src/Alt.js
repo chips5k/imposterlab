@@ -275,6 +275,8 @@ const App = () => {
           sectionRef.current.setSelected((prev) =>
             prev - 1 >= 0 ? prev - 1 : prev
           );
+        } else {
+          setSection((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
         }
 
         break;
@@ -283,6 +285,8 @@ const App = () => {
           sectionRef.current.setSelected((prev) =>
             prev + 1 < sectionRef.current.items.length ? prev + 1 : prev
           );
+        } else {
+          setSection((prev) => (prev + 1 < sections.length ? prev + 1 : prev));
         }
 
         break;
