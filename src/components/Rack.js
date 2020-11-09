@@ -73,8 +73,8 @@ const Rack = () => {
       <RackTitle>Simulcasts</RackTitle>
       <RackItems>
         {images.map((image) => (
-          <RackItem>
-            <img src={image.url} />
+          <RackItem key={image.name}>
+            <img src={image.url} alt={image.name} />
           </RackItem>
         ))}
       </RackItems>

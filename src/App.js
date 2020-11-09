@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 import GlobalStyle from "./GlobalStyle";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
@@ -18,7 +18,8 @@ import { PlayCircle as Logo } from "@styled-icons/ionicons-sharp";
 
 const Screens = styled.div`
   position: relative;
-  height: 100%;
+  height: 100vh;
+  overflow-y: scroll;
   &.forwards > .enter {
     transform: translateX(100%);
     opacity: 0;
@@ -63,7 +64,7 @@ const Screens = styled.div`
 const Screen = styled.div`
   position: absolute;
   transition: 0.2s;
-  overflow: hidden;
+  overflow-y: visible;
   width: 100%;
   height: 100%;
 `;
@@ -180,7 +181,18 @@ const renderScreen = (screen) => {
   }
 };
 
+const handleKeyDown = (e) => {
+  window.scrollBy(100, 100);
+};
+
 function App() {
+  useEffect(() => {
+    const keyPress = window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("onKeyPress", keyPress);
+    };
+  }, []);
+
   return (
     <StateProvider>
       <GlobalStyle />

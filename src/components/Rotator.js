@@ -76,31 +76,42 @@ const filterImages = (images, sizePredicate) => {
 };
 
 const Cycler = ({ images }) => {
-  const [items, setItems] = useState([images[0]]);
+  const [items, setItems] = useState(images ? [images[0]] : []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setItems([images[parseInt(Math.random() * images.length)]]);
     }, 3000);
-  }, []);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [images]);
+
+  if (items.length === 0) {
+    return <React.Fragment />;
+  }
+
   return (
-    <TransitionGroup component={StyledRotator}>
-      {items.map((image) => (
-        <CSSTransition key={image.name} timeout={500}>
-          <StyledRotatorItem>
-            <StyledRotatorImage src={image.url} />
-            <StyledRotatorImageCaption>
-              <StyledRotatorImageTitle>{image.name}</StyledRotatorImageTitle>
-              {image.description && (
-                <StyledRotatorImageDescription>
-                  {image.description}
-                </StyledRotatorImageDescription>
-              )}
-            </StyledRotatorImageCaption>
-          </StyledRotatorItem>
-        </CSSTransition>
-      ))}
+    <StyledRotator>
+      <TransitionGroup component={null}>
+        {items.map((image) => (
+          <CSSTransition key={image.name} timeout={500}>
+            <StyledRotatorItem>
+              <StyledRotatorImage src={image.url} alt={image.name} />
+              <StyledRotatorImageCaption>
+                <StyledRotatorImageTitle>{image.name}</StyledRotatorImageTitle>
+                {image.description && (
+                  <StyledRotatorImageDescription>
+                    {image.description}
+                  </StyledRotatorImageDescription>
+                )}
+              </StyledRotatorImageCaption>
+            </StyledRotatorItem>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
       <Shimage src={shim} />
-    </TransitionGroup>
+    </StyledRotator>
   );
 };
 
