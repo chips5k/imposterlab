@@ -3,7 +3,7 @@ import React from "react";
 const initialState = {
   navStack: ["Home"],
   navDir: "forwards",
-  loggedIn: false,
+  loggedIn: true,
 };
 
 const rootReducer = (state, action) => {

@@ -92,10 +92,17 @@ const PrimaryNavButton = styled.button`
   border: none;
   background: none;
   padding: 1em 1.5em;
-  margin: 0;
+  margin: 0 1em;
   font-size: 1em;
   outline: none;
+  border-radius: 3em;
   color: white;
+  transition: 0.5s;
+  background: ${({ active }) =>
+    active ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0)"};
+  border: 0.2em solid
+    ${({ active }) =>
+      active ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0)"}; ;
 `;
 
 const BottonFade = styled.div`
@@ -111,7 +118,7 @@ const BottonFade = styled.div`
   );
 `;
 
-const PrimaryNav = () => {
+const PrimaryNav = ({ selected, scene }) => {
   const dispatch = useContext(DispatchContext);
   const { navStack, loggedIn } = useContext(StateContext);
   const active = navStack[0];
@@ -135,44 +142,101 @@ const PrimaryNav = () => {
   if (!loggedIn) {
     return (
       <StyledPrimaryNav>
-        <PrimaryNavButton onClick={push("Login")}>Login</PrimaryNavButton>
+        <PrimaryNavButton
+          active={selected === scene.login}
+          ref={scene.login.ref}
+          onClick={push("Login")}
+        >
+          Login
+        </PrimaryNavButton>
       </StyledPrimaryNav>
     );
   }
 
   return (
     <StyledPrimaryNav>
-      <PrimaryNavButton onClick={push("TV")}>TV</PrimaryNavButton>
-      <PrimaryNavButton onClick={push("Movies")}>Movies</PrimaryNavButton>
-      <PrimaryNavButton onClick={push("Simulcast")}>Simulcast</PrimaryNavButton>
-      <PrimaryNavButton onClick={push("Kids")}>Kids</PrimaryNavButton>
-      <PrimaryNavButton onClick={push("Watchlist")}>Watchlist</PrimaryNavButton>
+      <PrimaryNavButton
+        active={selected === scene.tv}
+        ref={scene.tv.ref}
+        onClick={push("TV")}
+      >
+        TV
+      </PrimaryNavButton>
+      <PrimaryNavButton
+        active={selected === scene.movies}
+        ref={scene.movies.ref}
+        onClick={push("Movies")}
+      >
+        Movies
+      </PrimaryNavButton>
+      <PrimaryNavButton
+        active={selected === scene.simulcast}
+        ref={scene.simulcast.ref}
+        onClick={push("Simulcast")}
+      >
+        Simulcast
+      </PrimaryNavButton>
+      <PrimaryNavButton
+        active={selected === scene.kids}
+        ref={scene.kids.ref}
+        onClick={push("Kids")}
+      >
+        Kids
+      </PrimaryNavButton>
+      <PrimaryNavButton
+        active={selected === scene.watchlist}
+        ref={scene.watchlist.ref}
+        onClick={push("Watchlist")}
+      >
+        Watchlist
+      </PrimaryNavButton>
     </StyledPrimaryNav>
   );
 };
 
 const App = () => {
   const scene = {
+    home: {
+      ref: useRef("home"),
+    },
+    login: {
+      ref: useRef("login"),
+    },
+    tv: {
+      ref: useRef("tv"),
+    },
+    movies: {
+      ref: useRef("movies"),
+    },
+    simulcast: {
+      ref: useRef("simulcast"),
+    },
+    kids: {
+      ref: useRef("kids"),
+    },
+    watchlist: {
+      ref: useRef("watchlist"),
+    },
     racks: {
       rotator: {
         items: [1, 2, 3, 4, 5],
-        ref: useRef("rotator"),
+        ref: useRef("rotator-rack"),
       },
       recent: {
         items: [1, 2, 3, 4, 5],
-        ref: useRef("recent"),
+        ref: useRef("recent-rack"),
       },
       tv: {
         items: [1, 2, 3, 4, 5],
-        ref: useRef("tv"),
+        ref: useRef("tv-rack"),
       },
       movies: {
         items: [1, 2, 3, 4, 5],
-        ref: useRef("movies"),
+        ref: useRef("movies-rack"),
       },
       simulcast: {
         items: [1, 2, 3, 4, 5],
-        ref: useRef("simulcast"),
+        ref: useRef("simulcast-rack"),
       },
     },
   };
@@ -187,6 +251,12 @@ const App = () => {
   ] = useState(0);
 
   const sections = [
+    //scene.login,
+    scene.tv,
+    scene.movies,
+    scene.simulcast,
+    scene.kids,
+    scene.watchlist,
     scene.racks.rotator,
     scene.racks.recent,
     scene.racks.tv,
@@ -194,7 +264,7 @@ const App = () => {
     scene.racks.simulcast,
   ];
   const sectionRef = useRef("section");
-  const [section, setSection] = useState(0);
+  const [section, setSection] = useState(5);
 
   sectionRef.current = sections[section];
 
@@ -237,7 +307,7 @@ const App = () => {
   const offsetY = sectionRef.current.ref.current
     ? sectionRef.current.ref.current.offsetTop
     : 0;
-  const marginY = section === 0 ? "0em" : "5em";
+  const marginY = section === 5 ? "0em" : "5em";
   const translateY = `calc(-${offsetY}px + ${marginY})`;
   return (
     <StateProvider>
@@ -246,7 +316,7 @@ const App = () => {
         <Title>
           <StyledLogo /> <b>imposter</b>lab
         </Title>
-        <PrimaryNav />
+        <PrimaryNav selected={sectionRef.current} scene={scene} />
       </Header>
       <div
         style={{
