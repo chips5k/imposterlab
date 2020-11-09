@@ -181,18 +181,7 @@ const renderScreen = (screen) => {
   }
 };
 
-const handleKeyDown = (e) => {
-  window.scrollBy(100, 100);
-};
-
 function App() {
-  useEffect(() => {
-    const keyPress = window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("onKeyPress", keyPress);
-    };
-  }, []);
-
   return (
     <StateProvider>
       <GlobalStyle />
