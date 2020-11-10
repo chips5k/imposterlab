@@ -38,7 +38,46 @@ const getItems = async () => {
   }
 };
 
-const Rack = React.forwardRef(({ active }, ref) => {
+const StyledRack = styled.div`
+  // This positioning is need to prevent content
+  // being hidden under other elements
+  z-index: 1;
+  position: relative;
+`;
+
+const Title = styled.h2`
+  padding: 1em 1em 0em 1em;
+  margin: 0;
+`;
+
+const SliderFrame = styled.div`
+  width: 100%;
+  overflow: hidden;
+`;
+
+const Slider = styled.div`
+  display: flex;
+  min-width: 900px;
+  transition: 0.5s;
+  transform: translateX(${({ translate }) => translate});
+`;
+
+const Item = styled.div`
+  margin: 1em;
+  box-sizing: border-box;
+  min-width: calc((100% - 0px) / 5);
+  width: calc((100% - 0px) / 5);
+  max-width: calc((100% - 0px) / 5);
+`;
+
+const Image = styled.img`
+  width: 100%;
+  border-radius: 0.5em;
+  border: ${({ focus }) =>
+    focus ? "5px solid white" : "5px solid rgba(255,255,255,0)"};
+`;
+
+const Rack = React.forwardRef(({ title, active }, ref) => {
   //load initial data
   const [items, setItems] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -71,45 +110,24 @@ const Rack = React.forwardRef(({ active }, ref) => {
     }
   }, [active, items]);
 
-  const translate = `calc(${selectedIndex * (-100 / items.length)}%)`;
+  const margins = selectedIndex * 2;
+  const width = -100 / 5;
+  const offset = width * selectedIndex;
+  const translate = `calc(${offset}% - ${margins}em)`;
+
   return (
-    <div ref={ref}>
-      <h2>RackName</h2>
-      <div
-        style={{
-          width: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            minWidth: "900px",
-            transition: "0.5s",
-            transform: `translateX(${translate})`,
-          }}
-        >
+    <StyledRack ref={ref}>
+      <Title>{title}</Title>
+      <SliderFrame>
+        <Slider translate={translate}>
           {items.map((n, i) => (
-            <div
-              key={n.name}
-              style={{
-                background: "black",
-                margin: "1em",
-                border: `${
-                  i === selectedIndex ? "5px solid pink" : "5px solid white"
-                }`,
-              }}
-            >
-              <img
-                style={{ width: "100%", minWidth: "220px" }}
-                alt={n.name}
-                src={n.url}
-              />
-            </div>
+            <Item key={n.name}>
+              <Image focus={i === selectedIndex} alt={n.name} src={n.url} />
+            </Item>
           ))}
-        </div>
-      </div>
-    </div>
+        </Slider>
+      </SliderFrame>
+    </StyledRack>
   );
 });
 

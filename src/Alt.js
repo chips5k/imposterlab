@@ -269,7 +269,7 @@ const App = () => {
   }, [orderedRefs]);
 
   const offsetY = selectedRef.current ? selectedRef.current.offsetTop : 0;
-  const marginY = refIndex === ROTATOR_INDEX + 1 ? "0em" : "5em";
+  const marginY = refIndex === ROTATOR_INDEX ? "0em" : "5em";
   const translateY = `calc(-${offsetY}px + ${marginY})`;
   return (
     <StateProvider>
@@ -296,17 +296,29 @@ const App = () => {
             ref={refs.racks.rotator}
             active={refs.racks.rotator === selectedRef}
           />
-          <div style={{ marginTop: "-10%", transform: "translateX(0)" }}>
+          <div
+            style={{
+              marginTop: "-15%",
+              border: "1px solid blue",
+            }}
+          >
             <Rack
+              title="Recent"
               ref={refs.racks.recent}
               active={refs.racks.recent === selectedRef}
             />
-            <Rack ref={refs.racks.tv} active={refs.racks.tv === selectedRef} />
             <Rack
+              title="TV"
+              ref={refs.racks.tv}
+              active={refs.racks.tv === selectedRef}
+            />
+            <Rack
+              title="Movies"
               ref={refs.racks.movies}
               active={refs.racks.movies === selectedRef}
             />
             <Rack
+              title="Simulcast"
               ref={refs.racks.simulcast}
               active={refs.racks.simulcast === selectedRef}
             />
