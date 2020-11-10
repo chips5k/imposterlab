@@ -6,6 +6,9 @@ import { StateProvider, StateContext, DispatchContext } from "./GlobalState";
 
 import { PlayCircle as Logo } from "@styled-icons/ionicons-sharp";
 
+import Rack from "./components/Rack.js";
+import Rotator from "./components/Rotator.js";
+
 const Screens = styled.div`
   position: relative;
   height: 100vh;
@@ -118,7 +121,7 @@ const BottonFade = styled.div`
   );
 `;
 
-const PrimaryNav = ({ selected, scene }) => {
+const PrimaryNav = ({ selectedRef, refs }) => {
   const dispatch = useContext(DispatchContext);
   const { navStack, loggedIn } = useContext(StateContext);
   const active = navStack[0];
@@ -143,8 +146,8 @@ const PrimaryNav = ({ selected, scene }) => {
     return (
       <StyledPrimaryNav>
         <PrimaryNavButton
-          active={selected === scene.login}
-          ref={scene.login.ref}
+          active={selectedRef === refs.login}
+          ref={refs.login}
           onClick={push("Login")}
         >
           Login
@@ -156,36 +159,36 @@ const PrimaryNav = ({ selected, scene }) => {
   return (
     <StyledPrimaryNav>
       <PrimaryNavButton
-        active={selected === scene.tv}
-        ref={scene.tv.ref}
+        active={selectedRef === refs.tv}
+        ref={refs.tv}
         onClick={push("TV")}
       >
         TV
       </PrimaryNavButton>
       <PrimaryNavButton
-        active={selected === scene.movies}
-        ref={scene.movies.ref}
+        active={selectedRef === refs.movies}
+        ref={refs.movies}
         onClick={push("Movies")}
       >
         Movies
       </PrimaryNavButton>
       <PrimaryNavButton
-        active={selected === scene.simulcast}
-        ref={scene.simulcast.ref}
+        active={selectedRef === refs.simulcast}
+        ref={refs.simulcast}
         onClick={push("Simulcast")}
       >
         Simulcast
       </PrimaryNavButton>
       <PrimaryNavButton
-        active={selected === scene.kids}
-        ref={scene.kids.ref}
+        active={selectedRef === refs.kids}
+        ref={refs.kids}
         onClick={push("Kids")}
       >
         Kids
       </PrimaryNavButton>
       <PrimaryNavButton
-        active={selected === scene.watchlist}
-        ref={scene.watchlist.ref}
+        active={selectedRef === refs.watchlist}
+        ref={refs.watchlist}
         onClick={push("Watchlist")}
       >
         Watchlist
@@ -195,123 +198,78 @@ const PrimaryNav = ({ selected, scene }) => {
 };
 
 const App = () => {
-  const scene = {
-    home: {
-      ref: useRef("home"),
-    },
-    login: {
-      ref: useRef("login"),
-    },
-    tv: {
-      ref: useRef("tv"),
-    },
-    movies: {
-      ref: useRef("movies"),
-    },
-    simulcast: {
-      ref: useRef("simulcast"),
-    },
-    kids: {
-      ref: useRef("kids"),
-    },
-    watchlist: {
-      ref: useRef("watchlist"),
-    },
+  const refs = {
+    home: useRef("home"),
+    login: useRef("login"),
+    tv: useRef("tv"),
+    movies: useRef("movies"),
+    simulcast: useRef("simulcast"),
+    kids: useRef("kids"),
+    watchlist: useRef("watchlist"),
     racks: {
-      rotator: {
-        items: [1, 2, 3, 4, 5],
-        ref: useRef("rotator-rack"),
-      },
-      recent: {
-        items: [1, 2, 3, 4, 5],
-        ref: useRef("recent-rack"),
-      },
-      tv: {
-        items: [1, 2, 3, 4, 5],
-        ref: useRef("tv-rack"),
-      },
-      movies: {
-        items: [1, 2, 3, 4, 5],
-        ref: useRef("movies-rack"),
-      },
-      simulcast: {
-        items: [1, 2, 3, 4, 5],
-        ref: useRef("simulcast-rack"),
-      },
+      rotator: useRef("rotator-rack"),
+      recent: useRef("recent-rack"),
+      tv: useRef("tv-rack"),
+      movies: useRef("movies-rack"),
+      simulcast: useRef("simulcast-rack"),
     },
   };
 
-  [scene.racks.rotator.selected, scene.racks.rotator.setSelected] = useState(0);
-  [scene.racks.recent.selected, scene.racks.recent.setSelected] = useState(0);
-  [scene.racks.tv.selected, scene.racks.tv.setSelected] = useState(0);
-  [scene.racks.movies.selected, scene.racks.movies.setSelected] = useState(0);
-  [
-    scene.racks.simulcast.selected,
-    scene.racks.simulcast.setSelected,
-  ] = useState(0);
-
-  const sections = [
-    //scene.login,
-    scene.tv,
-    scene.movies,
-    scene.simulcast,
-    scene.kids,
-    scene.watchlist,
-    scene.racks.rotator,
-    scene.racks.recent,
-    scene.racks.tv,
-    scene.racks.movies,
-    scene.racks.simulcast,
+  const orderedRefs = [
+    //refs.login,
+    refs.tv,
+    refs.movies,
+    refs.simulcast,
+    refs.kids,
+    refs.watchlist,
+    refs.racks.rotator,
+    refs.racks.recent,
+    refs.racks.tv,
+    refs.racks.movies,
+    refs.racks.simulcast,
   ];
-  const sectionRef = useRef("section");
-  const [section, setSection] = useState(5);
+  const ROTATOR_INDEX = 5;
 
-  sectionRef.current = sections[section];
+  const [refIndex, setRefIndex] = useState(ROTATOR_INDEX);
+
+  const selectedRef = orderedRefs[refIndex];
 
   const handleKeyDown = (e) => {
     switch (e.key) {
       case "ArrowLeft":
-        if (sectionRef.current.setSelected) {
-          sectionRef.current.setSelected((prev) =>
-            prev - 1 >= 0 ? prev - 1 : prev
-          );
-        } else {
-          setSection((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
+        if (refIndex < ROTATOR_INDEX) {
+          setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
         }
-
         break;
       case "ArrowRight":
-        if (sectionRef.current.setSelected) {
-          sectionRef.current.setSelected((prev) =>
-            prev + 1 < sectionRef.current.items.length ? prev + 1 : prev
+        if (refIndex < ROTATOR_INDEX) {
+          setRefIndex((prev) =>
+            prev + 1 < orderedRefs.length ? prev + 1 : prev
           );
-        } else {
-          setSection((prev) => (prev + 1 < sections.length ? prev + 1 : prev));
         }
-
         break;
       case "ArrowUp":
-        setSection((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
+        setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
         break;
 
       case "ArrowDown":
-        setSection((prev) => (prev + 1 < sections.length ? prev + 1 : prev));
+        setRefIndex((prev) =>
+          prev + 1 < orderedRefs.length ? prev + 1 : prev
+        );
         break;
       default:
     }
   };
 
   useEffect(() => {
-    const keyPress = window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", keyPress);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [orderedRefs]);
 
-  const offsetY = sectionRef.current.ref.current
-    ? sectionRef.current.ref.current.offsetTop
-    : 0;
-  const marginY = section === 5 ? "0em" : "5em";
+  const offsetY = selectedRef.current ? selectedRef.current.offsetTop : 0;
+  const marginY = refIndex === ROTATOR_INDEX + 1 ? "0em" : "5em";
   const translateY = `calc(-${offsetY}px + ${marginY})`;
   return (
     <StateProvider>
@@ -320,7 +278,7 @@ const App = () => {
         <Title>
           <StyledLogo /> <b>imposter</b>lab
         </Title>
-        <PrimaryNav selected={sectionRef.current} scene={scene} />
+        <PrimaryNav selectedRef={selectedRef} refs={refs} />
       </Header>
       <div
         style={{
@@ -335,31 +293,23 @@ const App = () => {
           }}
         >
           <Rotator
-            ref={scene.racks.rotator.ref}
-            items={scene.racks.rotator.items}
-            selected={scene.racks.rotator.selected}
+            ref={refs.racks.rotator}
+            active={refs.racks.rotator === selectedRef}
           />
-          <div style={{ marginTop: "-10%" }}>
+          <div style={{ marginTop: "-10%", transform: "translateX(0)" }}>
             <Rack
-              ref={scene.racks.recent.ref}
-              items={scene.racks.recent.items}
-              selected={scene.racks.recent.selected}
-            ></Rack>
+              ref={refs.racks.recent}
+              active={refs.racks.recent === selectedRef}
+            />
+            <Rack ref={refs.racks.tv} active={refs.racks.tv === selectedRef} />
             <Rack
-              ref={scene.racks.tv.ref}
-              items={scene.racks.tv.items}
-              selected={scene.racks.tv.selected}
-            ></Rack>
+              ref={refs.racks.movies}
+              active={refs.racks.movies === selectedRef}
+            />
             <Rack
-              ref={scene.racks.movies.ref}
-              items={scene.racks.movies.items}
-              selected={scene.racks.movies.selected}
-            ></Rack>
-            <Rack
-              ref={scene.racks.simulcast.ref}
-              items={scene.racks.simulcast.items}
-              selected={scene.racks.simulcast.selected}
-            ></Rack>
+              ref={refs.racks.simulcast}
+              active={refs.racks.simulcast === selectedRef}
+            />
           </div>
         </div>
       </div>
@@ -368,79 +318,4 @@ const App = () => {
   );
 };
 
-const Rotator = React.forwardRef(({ items, selected }, ref) => {
-  const translate = `calc(${selected * -100}%)`;
-  return (
-    <div
-      ref={ref}
-      style={{
-        width: "100%",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          transition: "0.5s",
-          transform: `translateX(${translate})`,
-        }}
-      >
-        {items.map((n, i) => (
-          <div
-            key={n}
-            style={{
-              background: "black",
-            }}
-          >
-            <img
-              style={{ width: "100vw" }}
-              alt="Test"
-              src="http://0c86e2d1-madman-com-au.akamaized.net/rotatoritems/rotator_item_239_widescreen-rotator-art-clean-large_96878.jpg"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
-const Rack = React.forwardRef(({ items, selected }, ref) => {
-  const translate = `calc(${selected * (-100 / items.length)}%)`;
-  return (
-    <div
-      ref={ref}
-      style={{
-        width: "100%",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          minWidth: "900px",
-          transition: "0.5s",
-          transform: `translateX(${translate})`,
-        }}
-      >
-        {items.map((n, i) => (
-          <div
-            key={n}
-            style={{
-              background: "black",
-              margin: "1em",
-              border: `${
-                i === selected ? "5px solid pink" : "5px solid white"
-              }`,
-            }}
-          >
-            <img
-              style={{ width: "100%" }}
-              alt="Test"
-              src="http://0c86e2d1-madman-com-au.akamaized.net/shows/attack-on-titan_portrait-key-art-normal-small_62136.jpeg"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
 export default App;
