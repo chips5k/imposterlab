@@ -67,7 +67,8 @@ const Header = styled.header`
   display: flex;
   position: fixed;
   width: 100%;
-  z-index: 1;
+  z-index: 3;
+  min-width: 800px;
   justify-content: space-between;
   align-items: center;
   padding: 0;
@@ -89,13 +90,15 @@ const Title = styled.h1`
   }
 `;
 
-const StyledPrimaryNav = styled.nav``;
+const StyledPrimaryNav = styled.nav`
+  margin-right: 1em;
+`;
 
 const PrimaryNavButton = styled.button`
   border: none;
   background: none;
   padding: 1em 1.5em;
-  margin: 0 1em;
+  margin: 0 0em;
   font-size: 1em;
   outline: none;
   border-radius: 3em;
@@ -268,8 +271,11 @@ const App = () => {
     };
   }, [orderedRefs]);
 
-  const offsetY = selectedRef.current ? selectedRef.current.offsetTop : 0;
-  const marginY = refIndex === ROTATOR_INDEX ? "0em" : "5em";
+  let offsetY = selectedRef.current ? selectedRef.current.offsetTop : 0;
+  const marginY = refIndex === ROTATOR_INDEX ? "-0em" : "5em";
+  if (refIndex < ROTATOR_INDEX) {
+    offsetY = 25;
+  }
   const translateY = `calc(-${offsetY}px + ${marginY})`;
   return (
     <StateProvider>
@@ -299,7 +305,6 @@ const App = () => {
           <div
             style={{
               marginTop: "-15%",
-              border: "1px solid blue",
             }}
           >
             <Rack

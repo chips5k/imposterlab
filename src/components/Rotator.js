@@ -1,156 +1,84 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
-import shim from "../assets/images/shim.png";
-// const StyledRotator = styled.div`
-//   margin-bottom: 1em;
-//   position: relative;
-//   & > .enter {
-//     transform: translateX(100%);
-//   }
 
-//   & > .enter-active {
-//     transform: translateX(0%);
-//   }
+const filterItems = (images, sizePredicate) => {
+  const out = {};
+  if (images) {
+    for (const i of images) {
+      for (const x of i.images) {
+        for (const y of x.imageInstances) {
+          if (sizePredicate(y.imageInfo.width, y.imageInfo.height)) {
+            out[i.name] = {
+              name: i.name,
+              url: y.imageInfo.fullPath,
+              description: i.description,
+            };
+          }
+        }
+      }
+    }
+  }
+  return Object.values(out);
+};
 
-//   & > .exit {
-//     transform: translateX(0%);
-//   }
+const getItems = async () => {
+  try {
+    const response = await fetch(
+      "http://tv.animelab.com/api/racks/1?rackPage=0&rackLimit=5",
+      {
+        mode: "no-cors",
+      }
+    );
+    const data = await response.json();
 
-//   & > .exit-active {
-//     transform: translateX(-100%);
-//   }
-// `;
-// const StyledRotatorItem = styled.div`
-//   transition: 0.5s;
-//   width: 100%;
-//   z-index: 1;
-//   position: absolute;
-// `;
+    return data.panels[0].data.items;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
 
-// const StyledRotatorImage = styled.img`
-//   width: 100%;
-// `;
+const StyledRotator = styled.div`
+  // This positioning is need to prevent content
+  // being hidden under other elements
+  z-index: 1;
+  position: relative;
+`;
 
-// const StyledRotatorImageCaption = styled.div`
-//   position: absolute;
-//   z-index: 1;
-//   bottom: 0px;
-//   padding: 2em 2em;
-//   text-shadow: 2px 2px #000;
-// `;
-// const StyledRotatorImageTitle = styled.h2`
-//   font-size: 2.5em;
-//   margin: 0;
-//   padding: 0;
-// `;
+const Title = styled.h2`
+  padding: 1em 1em 0em 1em;
+  margin: 0;
+`;
 
-// const StyledRotatorImageDescription = styled.p`
-//   font-size: 1em;
-//   margin: 0;
-//   padding: 0;
-//   margin-top: 0.5em;
-// `;
-// const Shimage = styled.img`
-//   width: 100%;
-// `;
+const SliderFrame = styled.div`
+  width: 100%;
+  overflow: hidden;
+`;
 
-// const filterImages = (images, sizePredicate) => {
-//   const out = {};
-//   if (images) {
-//     for (const i of images) {
-//       for (const x of i.images) {
-//         for (const y of x.imageInstances) {
-//           if (sizePredicate(y.imageInfo.height, y.imageInfo.width)) {
-//             out[i.name] = {
-//               name: i.name,
-//               url: y.imageInfo.fullPath,
-//               description: i.description,
-//             };
-//           }
-//         }
-//       }
-//     }
-//   }
-//   return Object.values(out);
-// };
+const Slider = styled.div`
+  display: flex;
+  transition: 0.5s;
+  transform: translateX(${({ translate }) => translate});
+`;
 
-// const Cycler = ({ images }) => {
-//   const [items, setItems] = useState(images ? [images[0]] : []);
+const Item = styled.div``;
 
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       setItems([images[parseInt(Math.random() * images.length)]]);
-//     }, 3000);
-//     return () => {
-//       clearInterval(interval);
-//     };
-//   }, [images]);
+const Image = styled.img`
+  width: 100vw;
+`;
 
-//   if (items.length === 0) {
-//     return <React.Fragment />;
-//   }
-
-//   return (
-//     <StyledRotator>
-//       <TransitionGroup component={null}>
-//         {items.map((image) => (
-//           <CSSTransition key={image.name} timeout={500}>
-//             <StyledRotatorItem>
-//               <StyledRotatorImage src={image.url} alt={image.name} />
-//               <StyledRotatorImageCaption>
-//                 <StyledRotatorImageTitle>{image.name}</StyledRotatorImageTitle>
-//                 {image.description && (
-//                   <StyledRotatorImageDescription>
-//                     {image.description}
-//                   </StyledRotatorImageDescription>
-//                 )}
-//               </StyledRotatorImageCaption>
-//             </StyledRotatorItem>
-//           </CSSTransition>
-//         ))}
-//       </TransitionGroup>
-//       <Shimage src={shim} />
-//     </StyledRotator>
-//   );
-// };
-
-// const Rotator = () => {
-//   const [images, setImages] = useState();
-//   useEffect(() => {
-//     async function getData() {
-//       try {
-//         const response = await fetch(
-//           "http://tv.animelab.com/api/racks/1?rackPage=0&rackLimit=5",
-//           {
-//             mode: "no-cors",
-//           }
-//         );
-//         const data = await response.json();
-
-//         setImages(data.panels[0].data.items);
-//       } catch (e) {
-//         // TODO
-//       }
-//     }
-//     getData();
-//   }, []);
-
-//   return (
-//     <React.Fragment>
-//       {images && (
-//         <Cycler
-//           images={filterImages(images, (height, _) => height >= 1080)}
-//         ></Cycler>
-//       )}
-//     </React.Fragment>
-//   );
-// };
-
-const Rotator = React.forwardRef(({ active }, ref) => {
+const Rotator = React.forwardRef(({ title, active }, ref) => {
   //load initial data
-  const [items, setItems] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [items, setItems] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      const items = await getItems();
+      const filtered = filterItems(items, (w, h) => h >= 1080);
+      setItems(filtered);
+    })();
+  }, []);
 
   useEffect(() => {
     if (active) {
@@ -173,37 +101,20 @@ const Rotator = React.forwardRef(({ active }, ref) => {
   }, [active, items]);
 
   const translate = `calc(${selectedIndex * -100}%)`;
+
   return (
-    <div
-      ref={ref}
-      style={{
-        width: "100%",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          transition: "0.5s",
-          transform: `translateX(${translate})`,
-        }}
-      >
-        {items.map((n, i) => (
-          <div
-            key={n}
-            style={{
-              background: "black",
-            }}
-          >
-            <img
-              style={{ width: "100vw" }}
-              alt="Test"
-              src="http://0c86e2d1-madman-com-au.akamaized.net/rotatoritems/rotator_item_239_widescreen-rotator-art-clean-large_96878.jpg"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
+    <StyledRotator ref={ref}>
+      <Title>{title}</Title>
+      <SliderFrame>
+        <Slider translate={translate}>
+          {items.map((n, i) => (
+            <Item key={n.name}>
+              <Image focus={i === selectedIndex} alt={n.name} src={n.url} />
+            </Item>
+          ))}
+        </Slider>
+      </SliderFrame>
+    </StyledRotator>
   );
 });
 
