@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { getJSON } from "../lib/net";
 
 const filterItems = (images, sizePredicate) => {
   const out = {};
@@ -23,14 +24,10 @@ const filterItems = (images, sizePredicate) => {
 
 const getItems = async () => {
   try {
-    const response = await fetch(
-      "http://tv.animelab.com/api/shows/popular?page=1&limit=8",
-      {
-        mode: "no-cors",
-      }
+    const data = await getJSON(
+      "http://tv.animelab.com/api/shows/popular?page=1&limit=8"
     );
-    const data = await response.json();
-
+    console.log({ data });
     return data.list;
   } catch (e) {
     console.error(e);
