@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Alt from "./Alt";
+import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Alt />
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -4,17 +4,18 @@ import { getJSON } from "../lib/net";
 
 const filterItems = (images, sizePredicate) => {
   const out = {};
-  if (images) {
-    for (const i of images) {
-      for (const x of i.images) {
-        for (const y of x.imageInstances) {
-          if (sizePredicate(y.imageInfo.width, y.imageInfo.height)) {
-            out[i.name] = {
-              name: i.name,
-              url: y.imageInfo.fullPath,
-              description: i.description,
-            };
-          }
+
+  for (const i of images) {
+    for (const x of i.images) {
+      for (const y of x.imageInstances) {
+        if (sizePredicate(y.imageInfo.width, y.imageInfo.height)) {
+          out[i.name] = {
+            name: i.name,
+            url: y.imageInfo.fullPath,
+            description: i.description,
+            width: y.imageInfo.width,
+            height: y.imageInfo.height,
+          };
         }
       }
     }
@@ -28,7 +29,6 @@ const getItems = async () => {
       "http://tv.animelab.com/api/racks/1?rackPage=0&rackLimit=5"
     );
 
-    console.log({ data });
     return data.panels[0].data.items;
   } catch (e) {
     console.error(e);
@@ -43,9 +43,55 @@ const StyledRotator = styled.div`
   position: relative;
 `;
 
-const Title = styled.h2`
-  padding: 1em 1em 0em 1em;
+const NavContainer = styled.div`
+  position: absolute;
+  height: 1em;
+  width: 100%;
+  bottom: 25%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  z-index: 1;
+  width: 100%;
+`;
+
+const Nav = styled.div`
+  display: flex;
+  padding: 0.4em;
+  border-radius: 100em;
+  background: rgba(59, 0, 135, 0.8);
+`;
+
+const NavItem = styled.div`
+  width: 0.5em;
+  border-radius: 100em;
+  background: ${({ focus }) => (focus ? "white" : "rgba(255,255,255,0.5)")};
+  height: 0.5em;
+  margin: 0em 0.5em;
+`;
+
+const Caption = styled.div`
+  padding-left: 1.5em;
+  position: absolute;
+  bottom: 40%;
   margin: 0;
+  width: 100%;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+  color: white;
+`;
+const Label = styled.div`
+  font-size: 3em;
+  font-weight: bold;
+
+  color: white;
+  z-index: 1;
+`;
+
+const Description = styled.div`
+  margin: 0;
+  width: 100%;
+  font-size: 1em;
+  z-index: 1;
 `;
 
 const SliderFrame = styled.div`
@@ -99,15 +145,25 @@ const Rotator = React.forwardRef(({ title, active }, ref) => {
   }, [active, items]);
 
   const translate = `calc(${selectedIndex * -100}%)`;
-
+  console.log({ selectedIndex });
   return (
     <StyledRotator ref={ref}>
-      <Title>{title}</Title>
+      <NavContainer>
+        <Nav>
+          {items.map((_, i) => (
+            <NavItem focus={i === selectedIndex} />
+          ))}
+        </Nav>
+      </NavContainer>
       <SliderFrame>
         <Slider translate={translate}>
           {items.map((n, i) => (
             <Item key={n.name}>
               <Image focus={i === selectedIndex} alt={n.name} src={n.url} />
+              <Caption>
+                <Label>{n.name}</Label>
+                <Description>{n.description}</Description>
+              </Caption>
             </Item>
           ))}
         </Slider>
