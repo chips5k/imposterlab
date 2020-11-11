@@ -57,19 +57,6 @@ const PrimaryNavButton = styled.button`
       active ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0)"}; ;
 `;
 
-const BottonFade = styled.div`
-  position: fixed;
-  bottom: 0px;
-  z-index: 1;
-  height: 5em;
-  width: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(55, 0, 135, 0) 0%,
-    rgba(55, 0, 135, 1) 100%
-  );
-`;
-
 const PrimaryNav = ({ selectedRef, refs }) => {
   const dispatch = useContext(DispatchContext);
   const { navStack, loggedIn } = useContext(StateContext);
@@ -146,6 +133,56 @@ const PrimaryNav = ({ selectedRef, refs }) => {
   );
 };
 
+const RacksHoist = styled.div`
+  margin-top: -15%;
+`;
+const Focuser = styled.div`
+  transition: 0.5s;
+  transform: translateY(${({ translateY }) => translateY});
+`;
+const FocusFrame = styled.div`
+  overflow: hidden;
+  height: 100vh;
+`;
+
+const BottonFade = styled.div`
+  position: fixed;
+  bottom: 0px;
+  z-index: 1;
+  height: 5em;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(55, 0, 135, 0) 0%,
+    rgba(55, 0, 135, 1) 100%
+  );
+`;
+
+const ROTATOR_INDEX = 5;
+
+const handleKeyDown = (e, refIndex, totalRefs, setRefIndex) => {
+  switch (e.key) {
+    case "ArrowLeft":
+      if (refIndex < ROTATOR_INDEX) {
+        setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
+      }
+      break;
+    case "ArrowRight":
+      if (refIndex < ROTATOR_INDEX) {
+        setRefIndex((prev) => (prev + 1 < totalRefs ? prev + 1 : prev));
+      }
+      break;
+    case "ArrowUp":
+      setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
+      break;
+
+    case "ArrowDown":
+      setRefIndex((prev) => (prev + 1 < totalRefs ? prev + 1 : prev));
+      break;
+    default:
+  }
+};
+
 const App = () => {
   const refs = {
     home: useRef("home"),
@@ -177,45 +214,20 @@ const App = () => {
     refs.racks.movies,
     refs.racks.simulcast,
   ];
-  const ROTATOR_INDEX = 5;
 
   const [refIndex, setRefIndex] = useState(ROTATOR_INDEX);
 
   const selectedRef = orderedRefs[refIndex];
 
-  const handleKeyDown = (e) => {
-    switch (e.key) {
-      case "ArrowLeft":
-        if (refIndex < ROTATOR_INDEX) {
-          setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
-        }
-        break;
-      case "ArrowRight":
-        if (refIndex < ROTATOR_INDEX) {
-          setRefIndex((prev) =>
-            prev + 1 < orderedRefs.length ? prev + 1 : prev
-          );
-        }
-        break;
-      case "ArrowUp":
-        setRefIndex((prev) => (prev - 1 >= 0 ? prev - 1 : prev));
-        break;
-
-      case "ArrowDown":
-        setRefIndex((prev) =>
-          prev + 1 < orderedRefs.length ? prev + 1 : prev
-        );
-        break;
-      default:
-    }
-  };
-
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+    const handler = (e) => {
+      handleKeyDown(e, refIndex, orderedRefs.length, setRefIndex);
     };
-  }, [orderedRefs]);
+    window.addEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+    };
+  }, [refIndex]);
 
   let offsetY = selectedRef.current ? selectedRef.current.offsetTop : 0;
   const marginY = refIndex === ROTATOR_INDEX ? "-0em" : "5em";
@@ -223,6 +235,7 @@ const App = () => {
     offsetY = 25;
   }
   const translateY = `calc(-${offsetY}px + ${marginY})`;
+
   return (
     <StateProvider>
       <GlobalStyle />
@@ -232,27 +245,13 @@ const App = () => {
         </Title>
         <PrimaryNav selectedRef={selectedRef} refs={refs} />
       </Header>
-      <div
-        style={{
-          overflow: "hidden",
-          height: "100vh",
-        }}
-      >
-        <div
-          style={{
-            transition: "0.5s",
-            transform: `translateY(${translateY})`,
-          }}
-        >
+      <FocusFrame>
+        <Focuser translateY={translateY}>
           <Rotator
             ref={refs.racks.rotator}
             active={refs.racks.rotator === selectedRef}
           />
-          <div
-            style={{
-              marginTop: "-15%",
-            }}
-          >
+          <RacksHoist>
             <Rack
               title="Recent"
               ref={refs.racks.recent}
@@ -281,9 +280,9 @@ const App = () => {
               filter="recent"
               active={refs.racks.simulcast === selectedRef}
             />
-          </div>
-        </div>
-      </div>
+          </RacksHoist>
+        </Focuser>
+      </FocusFrame>
       <BottonFade />
     </StateProvider>
   );

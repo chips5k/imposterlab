@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { getJSON } from "../lib/net";
+import SvgSpinnerRotator from "../assets/images/spinner-rotator.svg";
 
 const filterItems = (images, sizePredicate) => {
   const out = {};
@@ -107,9 +108,46 @@ const Slider = styled.div`
 
 const Item = styled.div``;
 
-const Image = styled.img`
+const SpinnerRotator = () => {
+  return (
+    <img alt="Loading..." src={SvgSpinnerRotator} style={{ width: "100%" }} />
+  );
+};
+
+const StyledLoader = styled.div`
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: ${({ visible }) => (visible ? "flex" : "none")};
+`;
+
+const Loader = ({ visible, focus }) => (
+  <StyledLoader focus={focus} visible={visible}>
+    <SpinnerRotator />
+  </StyledLoader>
+);
+
+const StyledImage = styled.img`
+  display: ${({ visible }) => (visible ? "block" : "none")};
   width: 100vw;
 `;
+
+const Image = ({ src, focus, alt }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <React.Fragment>
+      <Loader focus={focus} visible={!loaded} />
+      <StyledImage
+        src={src}
+        focus={focus}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        visible={loaded}
+      />
+    </React.Fragment>
+  );
+};
 
 const Rotator = React.forwardRef(({ title, active }, ref) => {
   //load initial data
@@ -145,13 +183,12 @@ const Rotator = React.forwardRef(({ title, active }, ref) => {
   }, [active, items]);
 
   const translate = `calc(${selectedIndex * -100}%)`;
-  console.log({ selectedIndex });
   return (
     <StyledRotator ref={ref}>
       <NavContainer>
         <Nav>
-          {items.map((_, i) => (
-            <NavItem focus={i === selectedIndex} />
+          {items.map((n, i) => (
+            <NavItem key={"nav-" + n.name} focus={i === selectedIndex} />
           ))}
         </Nav>
       </NavContainer>

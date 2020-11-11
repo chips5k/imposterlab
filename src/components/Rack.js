@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { getJSON } from "../lib/net";
-import SpinnerSvg from "../assets/images/spinner.svg";
-import SpinnerSmallSvg from "../assets/images/spinner-small.svg";
+import SvgSpinnerRack from "../assets/images/spinner-rack.svg";
+import SvgSpinnerSmall from "../assets/images/spinner-small.svg";
 
 const filterItems = (images, sizePredicate) => {
   const out = {};
-  console.log("For debugging periodic issue", { images });
   for (const i of images) {
+    //not sure why but occasionally we get an undefined element in the returned array
     if (i) {
       for (const x of i.images) {
         for (const y of x.imageInstances) {
@@ -58,7 +58,9 @@ const Title = styled.h2`
 
 const SpinnerSmall = ({ visible }) => {
   if (visible) {
-    return <img style={{ height: "1.5em" }} src={SpinnerSmallSvg} />;
+    return (
+      <img alt="Loading..." style={{ height: "1.5em" }} src={SvgSpinnerSmall} />
+    );
   }
   return null;
 };
@@ -91,7 +93,13 @@ const StyledImage = styled.img`
     focus ? "5px solid white" : "5px solid rgba(255,255,255,0)"};
 `;
 
-const Loader = styled.div`
+const SpinnerRack = () => {
+  return (
+    <img alt="Loading..." src={SvgSpinnerRack} style={{ width: "100%" }} />
+  );
+};
+
+const StyledLoader = styled.div`
   width: 100%;
   align-items: center;
   justify-content: center;
@@ -102,17 +110,18 @@ const Loader = styled.div`
     focus ? "5px solid white" : "5px solid rgba(255,255,255,0)"};
 `;
 
-const Spinner = styled.img`
-  width: 100%;
-`;
+const Loader = ({ visible, focus }) => (
+  <StyledLoader focus={focus} visible={visible}>
+    <SpinnerRack />
+  </StyledLoader>
+);
+
 const Image = ({ src, focus, alt }) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <React.Fragment>
-      <Loader focus={focus} visible={!loaded}>
-        <Spinner src={SpinnerSvg} />
-      </Loader>
+      <Loader focus={focus} visible={!loaded} />
       <StyledImage
         src={src}
         focus={focus}
