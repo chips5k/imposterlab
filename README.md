@@ -1,7 +1,26 @@
 # Imposterlab
 
-After seeing tv.animelab.com i decided i wanted to attempt  building something similiar in react to see what is involved.
+A desktop TV interface experiment replicating a streaming media client with full keyboard navigation and cross-origin API proxies. Built with React, Electron, and styled-components.
 
-## Oddities
+## Quickstart
 
-I am using electron for two reasons - one to get around cors issues with the apis im talking to (via electron/node proxying) and two its the closest thing to what i imagine developing for consoles, smart tvs etc... would be like.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/chips5k/imposterlab.git
+   ```
+2. Install dependencies:
+   ```bash
+   cd imposterlab && yarn install
+   ```
+3. Start the desktop application:
+   ```bash
+   yarn electron-dev
+   ```
+
+## Design Notes
+
+After seeing `tv.animelab.com`, I wanted to build a similar leanback experience in React to understand spatial navigation and 10-foot UI constraints.
+
+Electron was selected for two reasons:
+1. To proxy streaming API endpoints and bypass cross-origin restrictions cleanly.
+2. To approximate building and testing for dedicated desktop/console environments.
