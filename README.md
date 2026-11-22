@@ -2,6 +2,14 @@
 
 A desktop TV interface experiment replicating a streaming media client with full keyboard navigation and cross-origin API proxies. Built with React, Electron, and styled-components.
 
+## Demo:
+
+<p align="center">
+  <video src="[[https://github.com](https://github.com/chips5k/imposterlab/releases/download/0.0.1/imposterlab-demo.mov)](https://github.com/chips5k/imposterlab/releases/download/0.0.1/imposterlab-demo.mov)" width="80%" controls></video>
+</p>
+
+https://github.com/chips5k/imposterlab/releases/download/0.0.1/imposterlab-demo.mov
+
 ## Quickstart
 
 1. Clone the repository:
